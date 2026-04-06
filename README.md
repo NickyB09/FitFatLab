@@ -1,109 +1,233 @@
-# FitFatLab — Gestión Integral de Entrenamiento Físico 
+# FitFatLab Backend
 
-![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![React Native](https://img.shields.io/badge/React_Native-Expo-61DAFB?style=for-the-badge&logo=react&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-Maven%20%2B%20JUnit5-blue?style=for-the-badge)
 
-> **FitFatLab** es una plataforma web fullstack diseñada para la administración avanzada de entrenamiento físico, nutrición y seguimiento de progreso. Este proyecto ha sido concebido bajo un enfoque de **Software Architecture**, priorizando la escalabilidad y el mantenimiento.
-
----
-
-## Arquitectura del Sistema
-
-El proyecto implementa una arquitectura de **Modular Monolith** (Monolito Modular). Esta elección permite una separación lógica clara por dominios de negocio, facilitando una futura migración a microservicios si el sistema lo requiere.
-
-### Principios y Patrones Aplicados
-* **SOLID Principles:** Aplicación rigurosa de los cinco principios para asegurar un código robusto.
-* **Clean Code:** Enfoque en legibilidad, métodos atómicos y eliminación de redundancia (**DRY**).
-* **Layered Architecture:** Separación estricta de responsabilidades (Controller, Service, Repository, Model).
-* **Design Patterns:** Implementación de *Repository Pattern*, *Service Layer*, *DTO Pattern* e *Inyección de Dependencias*.
+> Backend API para gestión de usuarios, autenticación, rutinas, ejercicios, dieta y progreso físico.
+> El frontend **todavía no ha empezado**; este repositorio hoy representa únicamente la base backend del proyecto.
 
 ---
 
-## Stack Tecnológico
+## Estado actual
 
-| Componente | Tecnología |
-| :--- | :--- |
-| **Lenguaje Backend** | Java 17+ |
-| **Framework Backend** | Spring Boot 3.x |
-| **Seguridad** | Spring Security + JWT (Stateless) |
-| **Persistencia** | Spring Data JPA / Hibernate |
-| **Base de Datos** | PostgreSQL (Supabase) |
-| **Frontend** | React Native + Expo (TypeScript) |
-| **Documentación** | Swagger / OpenAPI |
+### Ya implementado
+- Autenticación con JWT
+- Refresh tokens + logout
+- CORS configurable para frontend local
+- Registro y consulta de usuarios
+- Catálogo de ejercicios
+- Gestión de rutinas
+- Registro de dieta
+- Seguimiento de progreso
+- Swagger / OpenAPI
+- Migraciones con Flyway
+- Tests de contexto, servicios, controladores y utilidades JWT
+
+### Pendiente
+- Frontend web/mobile
+- Roles más finos para flujo entrenador/cliente
+- Deploy público
 
 ---
 
-## Estructura del Proyecto (Project Structure)
+## Arquitectura
 
-La organización de archivos sigue estándares internacionales, utilizando nomenclatura en **inglés** para la estructura técnica.
+Este backend sigue un enfoque de **monolito modular**:
 
-### Backend (Modular Structure)
 ```text
-src/
- ├── modules/
- │    ├── user/          # Identity and Access Management
- │    │    ├── controller
- │    │    ├── service
- │    │    ├── repository
- │    │    ├── model
- │    │    └── dto
- │    ├── routine/       # Training plans logic
- │    ├── exercise/      # Exercises catalog
- │    ├── diet/          # Nutritional planning
- │    └── progress/      # Metrics and tracking
- ├── security/           # JWT and Security filters
- ├── config/             # General configurations
- └── common/             # Shared utilities and exceptions
+src/main/java/com/fitfatlab/fitfatlab_backend
+├── common/      # config compartida, errores, utilidades
+├── modules/
+│   ├── auth/
+│   ├── user/
+│   ├── exercise/
+│   ├── routine/
+│   ├── diet/
+│   └── progress/
+└── security/    # JWT, filtros y configuración de seguridad
 ```
-### Frontend
+
+### Principios aplicados
+- Separación Controller / Service / Repository / DTO
+- Validación con Bean Validation
+- Seguridad stateless
+- Configuración por perfiles (`default`, `dev`, `test`)
+- Persistencia versionada con Flyway
+
+---
+
+## Stack
+
+| Área | Tecnología |
+|---|---|
+| Lenguaje | Java 21 |
+| Framework | Spring Boot 4.0.5 |
+| Seguridad | Spring Security + JWT |
+| Persistencia | Spring Data JPA / Hibernate |
+| Base de datos | PostgreSQL |
+| Testing | JUnit 5, MockMvc, Mockito, H2, Testcontainers |
+| Documentación | springdoc OpenAPI / Swagger UI |
+
+---
+
+## Setup local gratis
+
+### Requisitos
+- JDK 21+
+- Docker Desktop o Docker Engine
+
+### 1. Levantar PostgreSQL local
+
+```bash
+cp .env.example .env
+docker compose up -d
+```
+
+### 2. Ejecutar la app en modo desarrollo
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+O con Makefile:
+
+```bash
+make up
+make run
+```
+
+### 3. Abrir documentación Swagger
+
 ```text
-src/
- ├── screens/            # Application views
- ├── components/         # Reusable UI components
- ├── services/           # API communication (Axios/Fetch)
- ├── hooks/              # Custom React hooks
- ├── navigation/         # Routing logic
- └── types/              # TypeScript interfaces/types
-```
-# Configuración e Instalación
-
-### Requisitos Previos
-- JDK 17 o superior.
-- Node.js y npm/yarn.
-- Instancia de PostgreSQL (o credenciales de Supabase).
-
-### Backend
-1. Clonar el repositorio.
-2. Configurar las variables de entorno en:
-   `src/main/resources/application.properties`
-3. Ejecutar el proyecto:
-
-```bash 
-./mvnw spring-boot:run
+http://localhost:8080/swagger-ui/index.html
 ```
 
-### Frontend
-1. Navegar a la carpeta del frontend.
-2. Instalar dependencias:
+### 4. CORS listo para frontend local
+
+Por defecto el backend acepta peticiones desde:
+
+- `http://localhost:3000`
+- `http://localhost:5173`
+- `http://localhost:8081`
+
+Si tu frontend usa otro origen, cambia `FITFATLAB_ALLOWED_ORIGINS` en `.env`.
+
+---
+
+## Variables de entorno
+
+Puedes usar `.env` como referencia local:
+
+| Variable | Propósito | Default local |
+|---|---|---|
+| `DB_USERNAME` | usuario de PostgreSQL | `fitfatlab` |
+| `DB_PASSWORD` | password de PostgreSQL | `fitfatlab123` |
+| `JWT_SECRET` | clave base64 para JWT | valor de desarrollo |
+| `JWT_EXPIRATION_MS` | duración del access token | `86400000` |
+| `JWT_REFRESH_EXPIRATION_MS` | duración del refresh token | `604800000` |
+| `FITFATLAB_ALLOWED_ORIGINS` | orígenes permitidos para frontend | `http://localhost:3000,http://localhost:5173,http://localhost:8081` |
+| `SEED_ADMIN_ENABLED` | crea admin local automáticamente | `true` en dev |
+| `SEED_ADMIN_EMAIL` | correo admin semilla | `admin@fitfatlab.com` |
+| `SEED_ADMIN_PASSWORD` | password admin semilla | `ChangeMe123!` |
+
+> En `test`, el seed de admin está desactivado para que los tests sean reproducibles.
+
+---
+
+## Testing
+
+### Ejecutar tests
+
 ```bash
-npm install
+./mvnw test
 ```
-3. Iniciar el entorno de Expo:
+
+o:
+
 ```bash
-npx expo start
+make test
 ```
-# Objetivos del Proyecto
 
-### FitFatLab no es solo una herramienta funcional, es un caso de estudio arquitectónico que demuestra:
+### Qué se está probando hoy
+- Arranque del contexto Spring
+- Casos clave de servicios (`auth`, `user`, `progress`, `diet`)
+- Validaciones HTTP en controladores (`auth`, `user`)
+- Generación y validación de JWT
 
-- Capacidad para diseñar sistemas desacoplados y modulares.
-- Implementación de seguridad perimetral avanzada.
-- Uso de tipos de datos complejos y relaciones en bases de datos relacionales.
-- Construcción de una base de código preparada para entornos empresariales.
+## CI automática
+
+Ya quedó agregado un workflow en:
+
+```text
+.github/workflows/backend-ci.yml
+```
+
+Ese pipeline corre automáticamente en GitHub:
+
+- `./mvnw -q test`
+- `./mvnw -q -DskipTests verify`
+
+Así el backend queda más confiable antes de empezar el frontend.
+
+## Contrato para frontend
+
+También quedó una guía rápida en:
+
+```text
+docs/api-contract.md
+```
+
+Ahí tienes endpoints, payloads y formato de errores para empezar el front sin adivinar estructuras.
+
+---
+
+## Decisiones importantes de configuración
+
+### 1. Tests aislados de PostgreSQL real
+Los tests usan **H2 en memoria** con el perfil `test`, para que cualquier persona pueda correr la suite sin pagar servicios ni depender de infraestructura externa.
+
+### 2. Admin semilla controlado por configuración
+El admin por defecto ya no se crea siempre. Ahora depende de propiedades, lo cual es más seguro para portfolio y para despliegues futuros.
+
+### 3. `open-in-view` desactivado
+Se desactivó para evitar malas prácticas de acceso a base de datos durante la capa web.
+
+### 4. Refresh token persistente
+El login ahora devuelve `token` y `refreshToken`. El refresh token se guarda en base de datos, se rota en cada refresh y se revoca en logout.
+
+---
+
+## Comandos útiles
+
+```bash
+# levantar db
+docker compose up -d
+
+# bajar db
+docker compose down
+
+# correr backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+# correr tests
+./mvnw test
+```
+
+---
+
+## Roadmap sugerido para portfolio
+
+1. Montar CI con GitHub Actions
+2. Completar tests de integración por módulo
+3. Crear frontend
+4. Desplegar backend + demo pública
+5. Documentar decisiones arquitectónicas
+
+---
 
 ## Autor
-**Nicolás Andrés Betancur Ardila, Software Engineer**
 
-#### Contacto: Palaciosnico2@gmail.com
+**Nicolás Andrés Betancur Ardila**  
+Software Engineer en formación con foco en arquitectura de software.

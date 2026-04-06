@@ -1,0 +1,130 @@
+# src/main/resources/application.yml
+spring:
+  application:
+    name: fitfatlab-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fitfatlab_db
+    username: ${DB_USERNAME:fitfatlab}
+    password: ${DB_PASSWORD:fitfatlab123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        "[format_sql]": true                  # ← comillas para keys con guión bajo
+        "[default_batch_fetch_size]": 20
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 1
+
+  web:
+    error:
+      include-message: never                  # ← corregido: antes era server.error.*
+      include-stacktrace: never
+
+server:
+  port: 8080
+
+fitfatlab:
+  api:
+    cors:
+      allowed-origins: ${FITFATLAB_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081}
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:dGVzdC1zZWNyZXQta2V5LWZpdGZhdGxhYi1kZXYtMjU2Yml0cy1sb25nZW5vdWdo}
+      expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+      refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+  bootstrap:
+    seed-admin:
+      enabled: ${SEED_ADMIN_ENABLED:false}
+      email: ${SEED_ADMIN_EMAIL:admin@fitfatlab.com}
+      password: ${SEED_ADMIN_PASSWORD:ChangeMe123!}
+
+logging:
+  level:
+    com.fitfatlab: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        "[format_sql]": true
+        "[default_batch_fetch_size]": 20
+
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    com.fitfatlab: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+fitfatlab:
+  api:
+    cors:
+      allowed-origins: ${FITFATLAB_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081}
+  bootstrap:
+    seed-admin:
+      enabled: ${SEED_ADMIN_ENABLED:true}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:fitfatlab_test;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        "[format_sql]": true
+
+  flyway:
+    enabled: false
+
+fitfatlab:
+  api:
+    cors:
+      allowed-origins: http://localhost:3000,http://localhost:5173,http://localhost:8081
+  security:
+    jwt:
+      secret-key: dGVzdC1zZWNyZXQta2V5LWZpdGZhdGxhYi10ZXN0aW5nLTI1NmJpdHMtbG9uZ2Vub3VnaA==
+      expiration-ms: 3600000
+      refresh-expiration-ms: 86400000
+  bootstrap:
+    seed-admin:
+      enabled: false
