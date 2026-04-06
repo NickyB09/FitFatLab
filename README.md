@@ -112,13 +112,13 @@ Por defecto el backend acepta peticiones desde:
 - `http://localhost:5173`
 - `http://localhost:8081`
 
-Si tu frontend usa otro origen, cambia `FITFATLAB_ALLOWED_ORIGINS` en `.env`.
+ Próximamente, si el frontend usa otro origen, cambia `FITFATLAB_ALLOWED_ORIGINS` en `.env`.
 
 ---
 
 ## Variables de entorno
 
-Puedes usar `.env` como referencia local:
+Puedes usar `.env.example` como referencia local:
 
 | Variable | Propósito | Default local |
 |---|---|---|
@@ -130,7 +130,7 @@ Puedes usar `.env` como referencia local:
 | `FITFATLAB_ALLOWED_ORIGINS` | orígenes permitidos para frontend | `http://localhost:3000,http://localhost:5173,http://localhost:8081` |
 | `SEED_ADMIN_ENABLED` | crea admin local automáticamente | `true` en dev |
 | `SEED_ADMIN_EMAIL` | correo admin semilla | `admin@fitfatlab.com` |
-| `SEED_ADMIN_PASSWORD` | password admin semilla | `ChangeMe123!` |
+| `SEED_ADMIN_PASSWORD` | password admin semilla | `Cambiarpassw!` |
 
 > En `test`, el seed de admin está desactivado para que los tests sean reproducibles.
 
@@ -158,7 +158,7 @@ make test
 
 ## CI automática
 
-Ya quedó agregado un workflow en:
+Workflow en:
 
 ```text
 .github/workflows/backend-ci.yml
@@ -168,8 +168,7 @@ Ese pipeline corre automáticamente en GitHub:
 
 - `./mvnw -q test`
 - `./mvnw -q -DskipTests verify`
-
-Así el backend queda más confiable antes de empezar el frontend.
+Se hace para confirmar que todo quede bien antes de empezar el front.
 
 ## Contrato para frontend
 
@@ -179,7 +178,7 @@ También quedó una guía rápida en:
 docs/api-contract.md
 ```
 
-Ahí tienes endpoints, payloads y formato de errores para empezar el front sin adivinar estructuras.
+Aquí tenemos endpoints, payloads y formato de errores para empezar el front sin adivinar estructuras.
 
 ---
 
@@ -189,7 +188,7 @@ Ahí tienes endpoints, payloads y formato de errores para empezar el front sin a
 Los tests usan **H2 en memoria** con el perfil `test`, para que cualquier persona pueda correr la suite sin pagar servicios ni depender de infraestructura externa.
 
 ### 2. Admin semilla controlado por configuración
-El admin por defecto ya no se crea siempre. Ahora depende de propiedades, lo cual es más seguro para portfolio y para despliegues futuros.
+El admin por defecto ya no se crea siempre. Ahora depende de propiedades, lo cual es más seguro para despliegues futuros.
 
 ### 3. `open-in-view` desactivado
 Se desactivó para evitar malas prácticas de acceso a base de datos durante la capa web.
@@ -217,7 +216,7 @@ docker compose down
 
 ---
 
-## Roadmap sugerido para portfolio
+## Roadmap que se seguirá con el paso del tiempo:
 
 1. Montar CI con GitHub Actions
 2. Completar tests de integración por módulo
