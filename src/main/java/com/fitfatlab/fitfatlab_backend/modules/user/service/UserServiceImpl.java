@@ -29,16 +29,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse register(UserRegistrationRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        String normalizedEmail = normalizeEmail(request.getEmail());
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Email already registered: " + request.getEmail());
+                    HttpStatus.CONFLICT, "Email already registered: " + normalizedEmail);
         }
 
         Role defaultRole = roleRepository.findByName(Role.RoleName.ROLE_USER)
                 .orElseThrow(() -> new IllegalStateException("Default role ROLE_USER not found"));
 
         User user = new User();
-        user.setEmail(request.getEmail().toLowerCase().trim());
+        user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName().trim());
         user.setRoles(Set.of(defaultRole));
@@ -59,9 +60,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserResponse findByEmail(String email) {
-        User user = userRepository.findByEmail(email)
+        String normalizedEmail = normalizeEmail(email);
+        User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "User not found with email: " + email));
+                        HttpStatus.NOT_FOUND, "User not found with email: " + normalizedEmail));
         return toResponse(user);
     }
 
@@ -91,7 +93,10 @@ public class UserServiceImpl implements UserService {
         return toResponse(userRepository.save(user));
     }
 
-    // ── Private mapper — never expose the User entity ──────────────────────
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase();
+    }
+
     private UserResponse toResponse(User user) {
         Set<String> roleNames = user.getRoles().stream()
                 .map(r -> r.getName().name())

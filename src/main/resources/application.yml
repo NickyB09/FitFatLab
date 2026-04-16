@@ -43,8 +43,8 @@ fitfatlab:
       allowed-origins: ${FITFATLAB_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081}
   security:
     jwt:
-      secret-key: ${JWT_SECRET:dGVzdC1zZWNyZXQta2V5LWZpdGZhdGxhYi1kZXYtMjU2Yml0cy1sb25nZW5vdWdo}
-      expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+      secret-key: ${JWT_SECRET}
+      expiration-ms: ${JWT_EXPIRATION_MS:900000}
       refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
   bootstrap:
     seed-admin:
@@ -88,6 +88,11 @@ fitfatlab:
   api:
     cors:
       allowed-origins: ${FITFATLAB_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:8081}
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:dGVzdC1zZWNyZXQta2V5LWZpdGZhdGxhYi1kZXYtMjU2Yml0cy1sb25nZW5vdWdo}
+      expiration-ms: ${JWT_EXPIRATION_MS:900000}
+      refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
   bootstrap:
     seed-admin:
       enabled: ${SEED_ADMIN_ENABLED:true}

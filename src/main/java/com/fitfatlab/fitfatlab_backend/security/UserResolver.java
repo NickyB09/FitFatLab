@@ -14,7 +14,7 @@ public class UserResolver {
     private final UserRepository userRepository;
 
     public UUID resolve(UserDetails userDetails) {
-        return userRepository.findByEmail(userDetails.getUsername())
+        return userRepository.findByEmailIgnoreCase(userDetails.getUsername().trim().toLowerCase())
                 .orElseThrow()
                 .getId();
     }

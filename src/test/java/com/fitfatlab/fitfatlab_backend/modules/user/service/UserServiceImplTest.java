@@ -61,7 +61,7 @@ class UserServiceImplTest {
         savedUser.setRoles(Set.of(role));
         savedUser.setCreatedAt(LocalDateTime.now());
 
-        when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmailIgnoreCase("user@mail.com")).thenReturn(false);
         when(roleRepository.findByName(Role.RoleName.ROLE_USER)).thenReturn(Optional.of(role));
         when(passwordEncoder.encode("supersecret")).thenReturn("encoded-password");
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
@@ -86,7 +86,7 @@ class UserServiceImplTest {
         UserRegistrationRequest request = new UserRegistrationRequest();
         request.setEmail("existing@mail.com");
 
-        when(userRepository.existsByEmail("existing@mail.com")).thenReturn(true);
+        when(userRepository.existsByEmailIgnoreCase("existing@mail.com")).thenReturn(true);
 
         assertThatThrownBy(() -> userService.register(request))
                 .isInstanceOf(ResponseStatusException.class)

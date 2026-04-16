@@ -52,12 +52,13 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void createDefaultAdminIfMissing() {
+        String normalizedAdminEmail = adminEmail.trim().toLowerCase();
         if (!seedAdminEnabled) {
             log.info("Default admin seed disabled — skipping");
             return;
         }
 
-        if (userRepository.existsByEmail(adminEmail)) {
+        if (userRepository.existsByEmailIgnoreCase(normalizedAdminEmail)) {
             log.info("Default admin already exists — skipping seed");
             return;
         }
@@ -69,13 +70,13 @@ public class DataInitializer implements ApplicationRunner {
                 .orElseThrow(() -> new IllegalStateException("ROLE_USER not found even after creation attempt"));
 
         User admin = new User();
-        admin.setEmail(adminEmail);
+        admin.setEmail(normalizedAdminEmail);
         admin.setPasswordHash(passwordEncoder.encode(adminPassword));
         admin.setFullName("FitFatLab Administrator");
         admin.setEnabled(true);
         admin.setRoles(Set.of(adminRole, userRole));
 
         userRepository.save(admin);
-        log.info("Default admin created: {}", adminEmail);
+        log.info("Default admin created: {}", normalizedAdminEmail);
     }
 }

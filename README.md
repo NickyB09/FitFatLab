@@ -14,12 +14,16 @@
 
 ### Ya implementado
 - Autenticación con JWT
-- Refresh tokens + logout
+- Refresh tokens hasheados + logout
+- Hardening básico de auth/JWT (secret por entorno, 401 en token inválido, access token corto)
 - CORS configurable para frontend local
 - Registro y consulta de usuarios
 - Catálogo de ejercicios
-- Gestión de rutinas
-- Registro de dieta
+- Gestión de rutinas personales
+- Planning de rutinas coach -> student (templates, assignments, completion, reuse)
+- Registro de dieta personal
+- Planning nutricional coach -> student con permisos de edición
+- Schedule informativo coach -> student
 - Seguimiento de progreso
 - Swagger / OpenAPI
 - Migraciones con Flyway
@@ -27,7 +31,6 @@
 
 ### Pendiente
 - Frontend web/mobile
-- Roles más finos para flujo entrenador/cliente
 - Deploy público
 
 ---
@@ -152,9 +155,10 @@ make test
 
 ### Qué se está probando hoy
 - Arranque del contexto Spring
-- Casos clave de servicios (`auth`, `user`, `progress`, `diet`)
+- Casos clave de servicios (`auth`, `user`, `progress`, `diet`, `coaching`, `routine planning`, `schedule`)
 - Validaciones HTTP en controladores (`auth`, `user`)
-- Generación y validación de JWT
+- Generación, validación y manejo de errores JWT
+- Integración MockMvc para permisos y restricción de un entrenador activo por alumno
 
 ## CI automática
 
@@ -179,6 +183,16 @@ docs/api-contract.md
 ```
 
 Aquí tenemos endpoints, payloads y formato de errores para empezar el front sin adivinar estructuras.
+
+## Dirección visual del frontend
+
+También quedó documentada una primera guía de estilo/UI para el futuro frontend en:
+
+```text
+docs/frontend-ui-direction.md
+```
+
+Esa guía aterriza la identidad visual deseada del producto al dominio real de FitFatLab: auth, ejercicios, rutinas, dieta, progreso y perfil.
 
 ---
 
@@ -230,3 +244,18 @@ docker compose down
 
 **Nicolás Andrés Betancur Ardila**  
 Software Engineer en formación con foco en arquitectura de software.
+
+## MVP Coach-Student ya implementado
+
+### Endpoints nuevos para frontend
+- `/api/v1/coaching/*` — relaciones coach-student y permisos
+- `/api/v1/planning/routines/*` — templates, assignments, completion y reuse
+- `/api/v1/planning/meals/*` — meal plans asignados por coach
+- `/api/v1/planning/schedule/*` — horarios informativos
+
+### Seguridad aplicada antes del frontend
+- Access token corto (`15 min` por default)
+- Refresh tokens almacenados como hash SHA-256 en DB
+- JWT inválido o expirado devuelve `401`
+- `JWT_SECRET` requerido en el perfil base
+- Emails normalizados para login, búsqueda y registro

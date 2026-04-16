@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,14 +25,26 @@ public class JwtService {
     @Value("${fitfatlab.security.jwt.expiration-ms}")
     private long expirationMs;
 
-    // ── Token generation ────────────────────────────────────────────────────
-
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("roles", userDetails.getAuthorities().stream()
             .map(auth -> auth.getAuthority())
             .toList());
         return buildToken(extraClaims, userDetails);
+    }
+
+    public String hashRefreshToken(String rawRefreshToken) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashed = digest.digest(rawRefreshToken.getBytes(StandardCharsets.UTF_8));
+            StringBuilder builder = new StringBuilder();
+            for (byte b : hashed) {
+                builder.append(String.format("%02x", b));
+            }
+            return builder.toString();
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException("SHA-256 not available", ex);
+        }
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails) {
@@ -42,8 +57,6 @@ public class JwtService {
             .compact();
     }
 
-    // ── Token validation ────────────────────────────────────────────────────
-
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
         return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
@@ -52,8 +65,6 @@ public class JwtService {
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
-    // ── Claims extraction ───────────────────────────────────────────────────
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);

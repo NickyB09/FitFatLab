@@ -30,7 +30,7 @@ Respuesta:
   "email": "user@mail.com",
   "fullName": "Fit User",
   "roles": ["ROLE_USER"],
-  "expiresIn": 86400000
+  "expiresIn": 900000
 }
 ```
 
@@ -157,3 +157,150 @@ Cuando hay errores controlados, la API responde con estructura tipo:
   ]
 }
 ```
+
+## Coaching
+
+- `POST /api/v1/coaching/relationships`
+- `GET /api/v1/coaching/relationships/coach`
+- `GET /api/v1/coaching/relationships/student`
+- `PATCH /api/v1/coaching/relationships/{id}/status`
+- `PATCH /api/v1/coaching/relationships/{id}/meal-permissions`
+
+Create relationship:
+
+```json
+{
+  "studentId": "uuid"
+}
+```
+
+Update status:
+
+```json
+{
+  "status": "ACTIVE"
+}
+```
+
+Meal permissions:
+
+```json
+{
+  "allowStudentMealEdits": true
+}
+```
+
+## Routine Planning
+
+- `POST /api/v1/planning/routines/templates`
+- `GET /api/v1/planning/routines/templates`
+- `POST /api/v1/planning/routines/assignments`
+- `GET /api/v1/planning/routines/assignments/student`
+- `GET /api/v1/planning/routines/assignments/coach`
+- `PATCH /api/v1/planning/routines/assignments/{id}/complete`
+- `POST /api/v1/planning/routines/assignments/{id}/reuse`
+
+Template body:
+
+```json
+{
+  "name": "PPL Push",
+  "description": "Chest, shoulders and triceps",
+  "templateType": "GENERIC",
+  "exercises": [
+    {
+      "exerciseId": "uuid",
+      "sets": 4,
+      "reps": 10,
+      "restSeconds": 90
+    }
+  ]
+}
+```
+
+Assignment body:
+
+```json
+{
+  "studentId": "uuid",
+  "name": "Week 1 Strength",
+  "description": "Heavy compound focus",
+  "periodType": "WEEK",
+  "scheduledDate": "2026-04-20",
+  "exercises": [
+    {
+      "exerciseId": "uuid",
+      "sets": 5,
+      "reps": 5,
+      "restSeconds": 120
+    }
+  ]
+}
+```
+
+## Meal Planning
+
+- `POST /api/v1/planning/meals`
+- `GET /api/v1/planning/meals/student`
+- `GET /api/v1/planning/meals/coach`
+- `PATCH /api/v1/planning/meals/meals/{mealId}`
+
+Create meal plan:
+
+```json
+{
+  "studentId": "uuid",
+  "name": "Week 1 Nutrition",
+  "description": "High protein week",
+  "periodType": "WEEK",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-26",
+  "allowStudentEdits": true,
+  "meals": [
+    {
+      "mealName": "Breakfast",
+      "plannedDate": "2026-04-20",
+      "calories": 500,
+      "proteinG": 30,
+      "carbsG": 55,
+      "fatG": 12
+    }
+  ]
+}
+```
+
+Update planned meal as student:
+
+```json
+{
+  "mealName": "Edited Breakfast",
+  "calories": 520,
+  "proteinG": 35,
+  "carbsG": 50,
+  "fatG": 14
+}
+```
+
+## Schedule Planning
+
+- `POST /api/v1/planning/schedule`
+- `GET /api/v1/planning/schedule/coach`
+- `GET /api/v1/planning/schedule/student`
+
+Create informative slot:
+
+```json
+{
+  "studentId": "uuid",
+  "weekday": "MONDAY",
+  "startTime": "18:00:00",
+  "note": "Post-work training"
+}
+```
+
+## Security notes for frontend
+
+- Access token must be sent as `Authorization: Bearer <token>`
+- Access token expires quickly (`900000` ms by default)
+- Use `/api/v1/auth/refresh` to rotate session
+- Backend stores refresh tokens hashed; frontend only keeps the raw token returned by auth endpoints

@@ -13,7 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "refresh_tokens", indexes = {
         @Index(name = "idx_refresh_tokens_user", columnList = "user_id"),
-        @Index(name = "idx_refresh_tokens_token", columnList = "token")
+        @Index(name = "idx_refresh_tokens_token_hash", columnList = "token_hash")
 })
 @Getter
 @Setter
@@ -28,8 +28,11 @@ public class RefreshToken {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, unique = true, length = 120)
-    private String token;
+    @Column(name = "token_hash", nullable = false, unique = true, length = 128)
+    private String tokenHash;
+
+    @Column(name = "token_last_four", nullable = false, length = 4)
+    private String tokenLastFour;
 
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;

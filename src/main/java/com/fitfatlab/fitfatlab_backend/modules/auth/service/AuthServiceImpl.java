@@ -1,6 +1,5 @@
 package com.fitfatlab.fitfatlab_backend.modules.auth.service;
 
-
 import com.fitfatlab.fitfatlab_backend.modules.auth.dto.AuthResponse;
 import com.fitfatlab.fitfatlab_backend.modules.auth.dto.LoginRequest;
 import com.fitfatlab.fitfatlab_backend.modules.auth.dto.RefreshTokenRequest;
@@ -44,27 +43,28 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
+        String normalizedEmail = normalizeEmail(request.getEmail());
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getEmail(), request.getPassword()
-            )
+            new UsernamePasswordAuthenticationToken(normalizedEmail, request.getPassword())
         );
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(normalizedEmail);
         String token = jwtService.generateToken(userDetails);
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        RefreshToken refreshToken = createRefreshToken(user);
+        RefreshTokenPair refreshTokenPair = createRefreshToken(user);
 
-        return buildAuthResponse(user, token, refreshToken.getToken());
+        return buildAuthResponse(user, token, refreshTokenPair.rawToken());
     }
 
     @Override
     @Transactional
     public AuthResponse refresh(RefreshTokenRequest request) {
-        RefreshToken currentToken = refreshTokenRepository.findByTokenAndRevokedFalse(request.getRefreshToken())
+        String rawRefreshToken = request.getRefreshToken().trim();
+        String tokenHash = jwtService.hashRefreshToken(rawRefreshToken);
+        RefreshToken currentToken = refreshTokenRepository.findByTokenHashAndRevokedFalse(tokenHash)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
         if (currentToken.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -77,26 +77,30 @@ public class AuthServiceImpl implements AuthService {
         User user = currentToken.getUser();
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         String accessToken = jwtService.generateToken(userDetails);
-        RefreshToken newRefreshToken = createRefreshToken(user);
+        RefreshTokenPair newRefreshToken = createRefreshToken(user);
 
-        return buildAuthResponse(user, accessToken, newRefreshToken.getToken());
+        return buildAuthResponse(user, accessToken, newRefreshToken.rawToken());
     }
 
     @Override
     @Transactional
     public void logout(RefreshTokenRequest request) {
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenAndRevokedFalse(request.getRefreshToken())
+        String tokenHash = jwtService.hashRefreshToken(request.getRefreshToken().trim());
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenHashAndRevokedFalse(tokenHash)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Refresh token not found"));
         refreshToken.setRevoked(true);
     }
 
-    private RefreshToken createRefreshToken(User user) {
+    private RefreshTokenPair createRefreshToken(User user) {
+        String rawToken = UUID.randomUUID().toString();
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
-        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setTokenHash(jwtService.hashRefreshToken(rawToken));
+        refreshToken.setTokenLastFour(rawToken.substring(Math.max(0, rawToken.length() - 4)));
         refreshToken.setExpiresAt(LocalDateTime.now().plus(Duration.ofMillis(refreshExpirationMs)));
         refreshToken.setRevoked(false);
-        return refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.save(refreshToken);
+        return new RefreshTokenPair(rawToken, refreshToken);
     }
 
     private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken) {
@@ -111,4 +115,10 @@ public class AuthServiceImpl implements AuthService {
                 .expiresIn(expirationMs)
                 .build();
     }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase();
+    }
+
+    private record RefreshTokenPair(String rawToken, RefreshToken persistedToken) {}
 }
