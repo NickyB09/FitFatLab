@@ -240,11 +240,6 @@ docker compose down
 
 ---
 
-## Autor
-
-**Nicolás Andrés Betancur Ardila**  
-Software Engineer en formación con foco en arquitectura de software.
-
 ## MVP Coach-Student ya implementado
 
 ### Endpoints nuevos para frontend
@@ -259,3 +254,9 @@ Software Engineer en formación con foco en arquitectura de software.
 - JWT inválido o expirado devuelve `401`
 - `JWT_SECRET` requerido en el perfil base
 - Emails normalizados para login, búsqueda y registro
+
+---
+## Autor
+
+**Nicolás Andrés Betancur Ardila**  
+Software Engineer en formación con foco en arquitectura de software.
