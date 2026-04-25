@@ -119,26 +119,6 @@ Por defecto el backend acepta peticiones desde:
 
 ---
 
-## Variables de entorno
-
-Puedes usar `.env.example` como referencia local:
-
-| Variable | Propósito | Default local |
-|---|---|---|
-| `DB_USERNAME` | usuario de PostgreSQL | `fitfatlab` |
-| `DB_PASSWORD` | password de PostgreSQL | `fitfatlab123` |
-| `JWT_SECRET` | clave base64 para JWT | valor de desarrollo |
-| `JWT_EXPIRATION_MS` | duración del access token | `86400000` |
-| `JWT_REFRESH_EXPIRATION_MS` | duración del refresh token | `604800000` |
-| `FITFATLAB_ALLOWED_ORIGINS` | orígenes permitidos para frontend | `http://localhost:3000,http://localhost:5173,http://localhost:8081` |
-| `SEED_ADMIN_ENABLED` | crea admin local automáticamente | `true` en dev |
-| `SEED_ADMIN_EMAIL` | correo admin semilla | `admin@fitfatlab.com` |
-| `SEED_ADMIN_PASSWORD` | password admin semilla | `Cambiarpassw!` |
-
-> En `test`, el seed de admin está desactivado para que los tests sean reproducibles.
-
----
-
 ## Testing
 
 ### Ejecutar tests
